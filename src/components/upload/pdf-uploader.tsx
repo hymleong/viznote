@@ -96,7 +96,7 @@ export function PdfUploader({ lectureId }: { lectureId: string }) {
           const f = e.target.files?.[0];
           if (f) void handle(f);
         }}
-        className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-white"
+        className="block w-full text-sm text-on-surface-variant file:mr-3 file:h-10 file:cursor-pointer file:rounded-full file:border-0 file:bg-primary file:px-5 file:text-sm file:font-medium file:text-on-primary"
       />
       {status && (
         <p role="status" className="text-sm text-zinc-600 dark:text-zinc-300">

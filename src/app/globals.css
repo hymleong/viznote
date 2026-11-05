@@ -1,21 +1,121 @@
 @import "tailwindcss";
 
+/*
+ * Viznotes v2 — Material 3 inspired design tokens (Google design language).
+ * Semantic roles (surface, primary, outline...) switch with the colour scheme.
+ */
 :root {
   color-scheme: light dark;
-}
-
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --surface: #f8fafd;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f6fc;
+  --surface-container: #edf2fa;
+  --surface-container-high: #e3e9f2;
+  --on-surface: #1f1f1f;
+  --on-surface-variant: #444746;
+  --outline: #747775;
+  --outline-variant: #c4c7c5;
+  --primary: #0b57d0;
+  --on-primary: #ffffff;
+  --primary-container: #d3e3fd;
+  --on-primary-container: #041e49;
+  --secondary-container: #c2e7ff;
+  --on-secondary-container: #001d35;
+  --error: #b3261e;
 }
 
 @media (prefers-color-scheme: dark) {
-  .react-flow {
-    --xy-background-color: #18181b;
-    --xy-node-background-color: #27272a;
-    --xy-node-color: #f4f4f5;
-    --xy-edge-label-background-color: #27272a;
-    --xy-edge-label-color: #e4e4e7;
-    --xy-controls-button-background-color: #27272a;
-    --xy-controls-button-color: #f4f4f5;
+  :root {
+    --surface: #131314;
+    --surface-container-lowest: #0e0e0f;
+    --surface-container-low: #1b1c1d;
+    --surface-container: #1e1f20;
+    --surface-container-high: #282a2c;
+    --on-surface: #e3e3e3;
+    --on-surface-variant: #c4c7c5;
+    --outline: #8e918f;
+    --outline-variant: #444746;
+    --primary: #a8c7fa;
+    --on-primary: #062e6f;
+    --primary-container: #0842a0;
+    --on-primary-container: #d3e3fd;
+    --secondary-container: #004a77;
+    --on-secondary-container: #c2e7ff;
+    --error: #f2b8b5;
   }
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-error: var(--error);
+}
+
+@theme {
+  --font-sans: "Google Sans Flex", "Google Sans", "Roboto", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Google blue tonal palette, mapped onto the accent scale used across blocks */
+  --color-indigo-50: #eef3fe;
+  --color-indigo-100: #d3e3fd;
+  --color-indigo-200: #a8c7fa;
+  --color-indigo-300: #7cacf8;
+  --color-indigo-400: #4c8df6;
+  --color-indigo-500: #1b6ef3;
+  --color-indigo-600: #0b57d0;
+  --color-indigo-700: #0842a0;
+  --color-indigo-800: #062e6f;
+  --color-indigo-900: #041e49;
+  --color-indigo-950: #021432;
+
+  /* Google neutral palette */
+  --color-zinc-50: #f8fafd;
+  --color-zinc-100: #f0f4f9;
+  --color-zinc-200: #e1e3e1;
+  --color-zinc-300: #c4c7c5;
+  --color-zinc-400: #8e918f;
+  --color-zinc-500: #747775;
+  --color-zinc-600: #5e5e5e;
+  --color-zinc-700: #444746;
+  --color-zinc-800: #303030;
+  --color-zinc-900: #1e1f20;
+  --color-zinc-950: #131314;
+
+  --shadow-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --shadow-elevation-2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--on-surface);
+}
+
+::selection {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.react-flow {
+  --xy-background-color: var(--surface-container-lowest);
+  --xy-node-background-color: var(--surface-container-lowest);
+  --xy-node-color: var(--on-surface);
+  --xy-node-border-radius: 12px;
+  --xy-edge-label-background-color: var(--surface-container);
+  --xy-edge-label-color: var(--on-surface-variant);
+  --xy-controls-button-background-color: var(--surface-container);
+  --xy-controls-button-color: var(--on-surface);
 }

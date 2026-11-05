@@ -39,7 +39,7 @@ export function ReviewQueue({ cards }: { cards: QueueCard[] }) {
   const [pending, start] = useTransition();
   const card = cards[index];
 
-  if (!card) return <Card>Nothing due. Come back tomorrow.</Card>;
+  if (!card) return <Card className="py-12 text-center text-on-surface-variant">Nothing due. Come back tomorrow.</Card>;
 
   return (
     <Card className="space-y-4">
@@ -52,17 +52,17 @@ export function ReviewQueue({ cards }: { cards: QueueCard[] }) {
           </Link>
         </span>
       </div>
-      <p className="text-lg font-medium">{card.front}</p>
+      <p className="text-[22px] leading-8 font-normal text-on-surface">{card.front}</p>
       {revealed ? (
         <div className="space-y-4">
-          <div className="rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/60">
+          <div className="rounded-2xl bg-surface-container-low p-4 text-sm">
             <Back text={card.back} />
           </div>
           <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you recall it?">
             {RATINGS.map((r) => (
               <Button
                 key={r.value}
-                variant={r.value === 1 ? "destructive" : "outline"}
+                variant={r.value === 1 ? "destructive" : r.value === 3 ? "default" : "tonal"}
                 disabled={pending}
                 onClick={() =>
                   start(async () => {
@@ -78,7 +78,9 @@ export function ReviewQueue({ cards }: { cards: QueueCard[] }) {
           </div>
         </div>
       ) : (
-        <Button onClick={() => setRevealed(true)}>Show answer</Button>
+        <Button size="lg" className="w-full" onClick={() => setRevealed(true)}>
+          Show answer
+        </Button>
       )}
     </Card>
   );

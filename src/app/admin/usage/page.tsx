@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/primitives";
+import { AppShell } from "@/components/shell/app-shell";
+import { Badge, Card, PageHeader } from "@/components/ui/primitives";
 
 type UsageRow = {
   id: string;
@@ -28,46 +29,47 @@ export default async function UsagePage() {
   const fmt = (n: number) => n.toLocaleString();
 
   return (
-    <main className="mx-auto max-w-5xl space-y-4 px-4 py-8">
-      <Link href="/" className="text-sm text-indigo-600 hover:underline">
-        ← Modules
-      </Link>
-      <h1 className="text-2xl font-bold">Token usage</h1>
+    <AppShell>
+      <PageHeader eyebrow="Admin" title="Token usage" description="Per-generation model usage, including prompt-cache reads and writes." />
       <Card className="overflow-x-auto p-0">
         <table className="w-full text-sm">
-          <thead className="text-left text-zinc-500">
+          <thead className="bg-surface-container-low text-left text-xs font-medium tracking-wide text-on-surface-variant uppercase">
             <tr>
-              <th className="p-3">Lecture</th>
-              <th className="p-3">Version</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Input</th>
-              <th className="p-3 text-right">Cache read</th>
-              <th className="p-3 text-right">Cache write</th>
-              <th className="p-3 text-right">Output</th>
-              <th className="p-3 text-right">Passes</th>
+              <th className="px-4 py-3">Lecture</th>
+              <th className="px-4 py-3">Version</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right tabular-nums">Input</th>
+              <th className="px-4 py-3 text-right tabular-nums">Cache read</th>
+              <th className="px-4 py-3 text-right tabular-nums">Cache write</th>
+              <th className="px-4 py-3 text-right tabular-nums">Output</th>
+              <th className="px-4 py-3 text-right tabular-nums">Passes</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-zinc-100 dark:border-zinc-800">
-                <td className="p-3">
-                  <Link href={`/lectures/${r.lecture_id}`} className="hover:underline">
+              <tr key={r.id} className="border-t border-outline-variant/40 transition-colors hover:bg-on-surface/4">
+                <td className="px-4 py-3">
+                  <Link href={`/lectures/${r.lecture_id}`} className="font-medium text-primary hover:underline">
                     {r.lecture_title}
                   </Link>
                 </td>
-                <td className="p-3">v{r.version}</td>
-                <td className="p-3">{r.status}</td>
-                <td className="p-3 text-right">{fmt(r.input_tokens)}</td>
-                <td className="p-3 text-right">{fmt(r.cache_read_tokens)}</td>
-                <td className="p-3 text-right">{fmt(r.cache_write_tokens)}</td>
-                <td className="p-3 text-right">{fmt(r.output_tokens)}</td>
-                <td className="p-3 text-right">{r.model_usage.length}</td>
+                <td className="px-4 py-3">v{r.version}</td>
+                <td className="px-4 py-3">
+                  <Badge tone={r.status === "complete" ? "good" : r.status === "failed" ? "bad" : "info"} className="capitalize">
+                    {r.status}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-right tabular-nums">{fmt(r.input_tokens)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{fmt(r.cache_read_tokens)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{fmt(r.cache_write_tokens)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{fmt(r.output_tokens)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{r.model_usage.length}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {rows.length === 0 && <p className="p-4 text-sm text-zinc-500">No generations yet.</p>}
+        {rows.length === 0 && <p className="p-6 text-sm text-on-surface-variant">No generations yet.</p>}
       </Card>
-    </main>
+    </AppShell>
   );
 }

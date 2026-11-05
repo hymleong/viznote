@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import type { BlockOf } from "@/lib/blocks/schema";
 
-const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#0ea5e9"];
+const COLORS = ["#1a73e8", "#34a853", "#fbbc04", "#ea4335", "#a142f4"];
 
 export function ChartBlock({ block }: { block: BlockOf<"chart"> }) {
   const data = block.rows.map((r) => ({
@@ -53,7 +53,7 @@ export function ChartBlock({ block }: { block: BlockOf<"chart"> }) {
             <BarChart data={data}>
               {axes}
               {block.series.map((s, i) => (
-                <Bar key={s} dataKey={s} fill={COLORS[i % COLORS.length]} />
+                <Bar key={s} dataKey={s} fill={COLORS[i % COLORS.length]} radius={[6, 6, 0, 0]} />
               ))}
             </BarChart>
           )}

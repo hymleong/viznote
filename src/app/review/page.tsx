@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { AppShell } from "@/components/shell/app-shell";
+import { PageHeader } from "@/components/ui/primitives";
 import { ReviewQueue, type QueueCard } from "@/components/study/review-queue";
 
 /** One daily review queue across every module. */
@@ -21,12 +22,15 @@ export default async function ReviewPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-      <Link href="/" className="text-sm text-indigo-600 hover:underline">
-        ← Modules
-      </Link>
-      <h1 className="text-2xl font-bold">Daily review</h1>
-      <ReviewQueue cards={cards} />
-    </main>
+    <AppShell>
+      <div className="mx-auto max-w-2xl space-y-8">
+        <PageHeader
+          eyebrow="Spaced repetition"
+          title="Daily review"
+          description={cards.length ? `${cards.length} card${cards.length === 1 ? "" : "s"} due today` : "You're all caught up"}
+        />
+        <ReviewQueue cards={cards} />
+      </div>
+    </AppShell>
   );
 }

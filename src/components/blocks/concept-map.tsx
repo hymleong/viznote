@@ -5,11 +5,11 @@ import "@xyflow/react/dist/style.css";
 import type { BlockOf } from "@/lib/blocks/schema";
 
 const EDGE_STYLE: Record<string, { stroke: string; dash?: string }> = {
-  "is-a": { stroke: "#6366f1" },
-  "part-of": { stroke: "#0ea5e9" },
-  causes: { stroke: "#f59e0b" },
-  "contrasts-with": { stroke: "#ef4444", dash: "6 4" },
-  "prerequisite-for": { stroke: "#10b981" },
+  "is-a": { stroke: "#0b57d0" },
+  "part-of": { stroke: "#12b5cb" },
+  causes: { stroke: "#e37400" },
+  "contrasts-with": { stroke: "#d93025", dash: "6 4" },
+  "prerequisite-for": { stroke: "#188038" },
 };
 
 /** Layered layout: prerequisite/cause edges push targets one level down. */
@@ -48,8 +48,8 @@ export function ConceptMap({ block }: { block: BlockOf<"concept_map"> }) {
         fontWeight: n.importance === 3 ? 700 : 500,
         fontSize: 12,
         borderWidth: n.importance,
-        borderColor: "#6366f1",
-        borderRadius: 10,
+        borderColor: "#0b57d0",
+        borderRadius: 14,
       },
     }));
     const edges: Edge[] = block.edges.map((e, i) => {
@@ -69,7 +69,7 @@ export function ConceptMap({ block }: { block: BlockOf<"concept_map"> }) {
 
   return (
     <figure>
-      <div className="h-[420px] w-full rounded-lg border border-zinc-200 dark:border-zinc-800" role="img" aria-label={block.caption}>
+      <div className="h-[420px] w-full rounded-2xl border border-outline-variant/60" role="img" aria-label={block.caption}>
         <ReactFlow nodes={nodes} edges={edges} fitView proOptions={{ hideAttribution: true }} nodesConnectable={false}>
           <Background />
           <Controls showInteractive={false} />

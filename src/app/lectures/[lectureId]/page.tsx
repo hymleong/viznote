@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArrowLeft, FileText } from "lucide-react";
+import { AppShell } from "@/components/shell/app-shell";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { addPastedText } from "@/app/actions";
@@ -7,7 +9,7 @@ import { PdfUploader } from "@/components/upload/pdf-uploader";
 import { LectureView } from "@/components/lecture/lecture-view";
 import type { QuizItemView } from "@/components/study/quiz-panel";
 import { Button } from "@/components/ui/button";
-import { Card, Input, Textarea } from "@/components/ui/primitives";
+import { Card, Input, PageHeader, Textarea } from "@/components/ui/primitives";
 import type { BlockRow, GenerationRow, LectureRow, PageView, SourceFileRow } from "@/lib/types";
 
 export default async function LecturePage({ params }: { params: Promise<{ lectureId: string }> }) {
@@ -75,33 +77,44 @@ export default async function LecturePage({ params }: { params: Promise<{ lectur
     .order("created_at");
 
   return (
-    <main className="mx-auto max-w-[1500px] space-y-6 px-4 py-6">
-      <nav className="text-sm">
-        <Link href={`/modules/${lecture.module_id}`} className="text-indigo-600 hover:underline">
-          ← Module
+    <AppShell wide>
+      <Button asChild variant="ghost" size="sm" className="-ml-3">
+        <Link href={`/modules/${lecture.module_id}`}>
+          <ArrowLeft aria-hidden />
+          Module
         </Link>
-      </nav>
-      <h1 className="text-2xl font-bold">{lecture.title}</h1>
+      </Button>
+      <PageHeader title={lecture.title} />
 
-      <details open={files.length === 0} className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <summary className="cursor-pointer font-medium">
-          Materials ({files.length} file{files.length === 1 ? "" : "s"})
+      <details open={files.length === 0} className="group rounded-3xl bg-surface-container-low p-2">
+        <summary className="flex cursor-pointer list-none items-center gap-3 rounded-2xl px-4 py-3 text-base font-medium text-on-surface hover:bg-on-surface/5 [&::-webkit-details-marker]:hidden">
+          <FileText className="size-5 text-on-surface-variant" aria-hidden />
+          Materials
+          <span className="rounded-full bg-secondary-container px-2.5 py-0.5 text-xs font-medium text-on-secondary-container">
+            {files.length} file{files.length === 1 ? "" : "s"}
+          </span>
+          <span className="ml-auto text-sm font-normal text-on-surface-variant group-open:hidden">Show</span>
+          <span className="ml-auto hidden text-sm font-normal text-on-surface-variant group-open:inline">Hide</span>
         </summary>
-        <div className="mt-4 grid gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <ul className="text-sm">
-              {files.map((f) => (
-                <li key={f.id}>
-                  {f.filename} <span className="text-zinc-500">({f.page_count} pages)</span>
-                </li>
-              ))}
-            </ul>
+        <div className="grid gap-4 p-3 md:grid-cols-2">
+          <div className="space-y-4 rounded-3xl bg-surface-container-lowest p-5 dark:bg-surface-container">
+            {files.length > 0 && (
+              <ul className="space-y-1 text-sm">
+                {files.map((f) => (
+                  <li key={f.id} className="flex items-center gap-2 rounded-xl px-1 py-1">
+                    <FileText className="size-4 shrink-0 text-primary" aria-hidden />
+                    <span className="truncate">{f.filename}</span>
+                    <span className="ml-auto shrink-0 text-on-surface-variant">{f.page_count} pages</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <PdfUploader lectureId={lecture.id} />
           </div>
-          <Card className="p-4">
+          <Card className="p-5 ring-0 shadow-none">
             <form action={addPastedText} className="space-y-2">
               <input type="hidden" name="lectureId" value={lecture.id} />
-              <label htmlFor="paste-title" className="text-sm font-medium">
+              <label htmlFor="paste-title" className="text-sm font-medium text-on-surface-variant">
                 Or paste text / Markdown
               </label>
               <Input id="paste-title" name="title" placeholder="Lecture notes" required />
@@ -122,6 +135,6 @@ export default async function LecturePage({ params }: { params: Promise<{ lectur
         initialBlocks={(blockData ?? []) as BlockRow[]}
         quizItems={(quizData ?? []) as QuizItemView[]}
       />
-    </main>
+    </AppShell>
   );
 }

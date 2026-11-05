@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createLecture, deleteModule } from "@/app/actions";
+import { AppShell } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
-import { Badge, Card, Input } from "@/components/ui/primitives";
+import { Badge, Card, Input, PageHeader } from "@/components/ui/primitives";
 import type { LectureRow, ModuleRow } from "@/lib/types";
 
 export default async function ModulePage({ params }: { params: Promise<{ moduleId: string }> }) {
@@ -20,49 +22,68 @@ export default async function ModulePage({ params }: { params: Promise<{ moduleI
   const lectures = (data ?? []) as LectureRow[];
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-      <nav className="text-sm">
-        <Link href="/" className="text-indigo-600 hover:underline">
-          ← Modules
+    <AppShell>
+      <Button asChild variant="ghost" size="sm" className="-ml-3">
+        <Link href="/">
+          <ArrowLeft aria-hidden />
+          Modules
         </Link>
-      </nav>
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold text-indigo-600">{m.code}</p>
-          <h1 className="text-2xl font-bold">{m.title}</h1>
-        </div>
-        <form action={deleteModule.bind(null, m.id)}>
-          <Button variant="ghost" size="sm">
-            Delete module
-          </Button>
-        </form>
-      </header>
+      </Button>
 
-      <Card>
-        <form action={createLecture} className="flex flex-col gap-2 sm:flex-row">
+      <PageHeader
+        eyebrow={m.code}
+        title={m.title}
+        description={`${lectures.length} lecture${lectures.length === 1 ? "" : "s"}`}
+        actions={
+          <form action={deleteModule.bind(null, m.id)}>
+            <Button variant="ghost" size="sm" className="text-error hover:bg-error/8">
+              <Trash2 aria-hidden />
+              Delete module
+            </Button>
+          </form>
+        }
+      />
+
+      <Card className="bg-surface-container-low p-4 ring-0 shadow-none sm:p-5 dark:bg-surface-container-low">
+        <form action={createLecture} className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input type="hidden" name="moduleId" value={m.id} />
           <label htmlFor="title" className="sr-only">
             Lecture title
           </label>
-          <Input id="title" name="title" placeholder="Lecture 3: Perception and colour" required />
-          <Button type="submit">Add lecture</Button>
+          <Input id="title" name="title" placeholder="Lecture 3: Perception and colour" required className="bg-surface-container-lowest dark:bg-surface-container" />
+          <Button type="submit" size="lg" className="shrink-0">
+            <Plus aria-hidden />
+            Add lecture
+          </Button>
         </form>
       </Card>
 
-      <ol className="space-y-2">
-        {lectures.map((l, i) => (
-          <li key={l.id}>
-            <Link
-              href={`/lectures/${l.id}`}
-              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 hover:border-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-zinc-800 dark:bg-zinc-900"
-            >
-              <span className="text-sm text-zinc-400">{i + 1}</span>
-              <span className="flex-1 font-medium">{l.title}</span>
-              <Badge tone={l.status === "ready" ? "good" : l.status === "failed" ? "bad" : "neutral"}>{l.status}</Badge>
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </main>
+      {lectures.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-outline-variant px-6 py-16 text-center">
+          <p className="text-lg text-on-surface">No lectures yet</p>
+          <p className="mt-1 text-sm text-on-surface-variant">Add a lecture, then upload its slides.</p>
+        </div>
+      ) : (
+        <ol className="overflow-hidden rounded-3xl bg-surface-container-low">
+          {lectures.map((l, i) => (
+            <li key={l.id} className="border-b border-outline-variant/40 last:border-b-0">
+              <Link
+                href={`/lectures/${l.id}`}
+                className="group flex items-center gap-4 px-4 py-4 transition-colors hover:bg-on-surface/5 focus-visible:bg-on-surface/8 focus-visible:outline-none sm:px-6"
+              >
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-container text-sm font-medium text-on-primary-container">
+                  {i + 1}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-base text-on-surface">{l.title}</span>
+                <Badge tone={l.status === "ready" ? "good" : l.status === "failed" ? "bad" : l.status === "processing" ? "info" : "neutral"} className="capitalize">
+                  {l.status}
+                </Badge>
+                <ChevronRight className="size-5 shrink-0 text-on-surface-variant transition-transform group-hover:translate-x-0.5" aria-hidden />
+              </Link>
+            </li>
+          ))}
+        </ol>
+      )}
+    </AppShell>
   );
 }

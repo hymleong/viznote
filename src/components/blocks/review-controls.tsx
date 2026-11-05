@@ -28,7 +28,7 @@ export function ReviewControls({ row }: { row: BlockRow }) {
     });
 
   return (
-    <div className="space-y-2 border-t border-zinc-100 pt-2 dark:border-zinc-800">
+    <div className="space-y-2 border-t border-outline-variant/40 pt-3">
       <div className="flex flex-wrap items-center gap-1">
         {row.review_status !== "pending" && (
           <Badge tone="good">{row.review_status === "approved" ? "Approved" : "Edited"}</Badge>
@@ -119,7 +119,7 @@ export function ReviewControls({ row }: { row: BlockRow }) {
       )}
 
       {errors.length > 0 && (
-        <ul role="alert" className="list-disc pl-5 text-xs text-red-600">
+        <ul role="alert" className="list-disc pl-5 text-xs text-error">
           {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}

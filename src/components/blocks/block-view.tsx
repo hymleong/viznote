@@ -43,7 +43,7 @@ export function BlockView({
   footer?: React.ReactNode;
 }) {
   return (
-    <Card className="space-y-3">
+    <Card className="space-y-4">
       <header className="flex flex-wrap items-center gap-2">
         <Badge tone="info">{LABELS[block.type]}</Badge>
         {block.beyond_source && (
@@ -57,7 +57,7 @@ export function BlockView({
               key={`${s.fileId}-${s.page}`}
               type="button"
               onClick={() => onCite(s)}
-              className="rounded border border-zinc-300 px-1.5 py-0.5 text-xs text-zinc-600 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              className="inline-flex h-7 items-center rounded-lg border border-outline-variant px-2.5 text-xs font-medium text-on-surface-variant transition-colors hover:bg-primary/8 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label={`Open ${fileLabel(s.fileId)} page ${s.page}`}
             >
               {fileLabel(s.fileId)} p.{s.page}
@@ -77,7 +77,7 @@ function BlockBody({ block }: { block: Block }) {
       return (
         <div className="space-y-3">
           <p className="text-[15px] leading-relaxed">{block.summary.join(" ")}</p>
-          <p className="rounded-lg bg-indigo-50 p-3 font-medium text-indigo-950 dark:bg-indigo-950/50 dark:text-indigo-100">
+          <p className="rounded-2xl bg-primary-container p-4 font-medium text-on-primary-container">
             <span className="mr-2" aria-hidden>
               ★
             </span>
@@ -89,7 +89,7 @@ function BlockBody({ block }: { block: Block }) {
     case "concept_map":
       return (
         <>
-          <h3 className="font-semibold">{block.title}</h3>
+          <h3 className="text-lg font-medium text-on-surface">{block.title}</h3>
           <ConceptMap block={block} />
         </>
       );
@@ -103,7 +103,7 @@ function BlockBody({ block }: { block: Block }) {
     case "comparison":
       return (
         <div className="space-y-3">
-          <h3 className="font-semibold">{block.title}</h3>
+          <h3 className="text-lg font-medium text-on-surface">{block.title}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -141,7 +141,7 @@ function BlockBody({ block }: { block: Block }) {
     case "formula":
       return (
         <div className="space-y-3">
-          <h3 className="font-semibold">{block.name}</h3>
+          <h3 className="text-lg font-medium text-on-surface">{block.name}</h3>
           <Math latex={block.latex} display />
           <dl className="grid gap-1 text-sm sm:grid-cols-2">
             {block.symbols.map((s) => (
@@ -157,7 +157,7 @@ function BlockBody({ block }: { block: Block }) {
             <span className="font-semibold">Intuition: </span>
             {block.intuition}
           </p>
-          <div className="rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/60">
+          <div className="rounded-2xl bg-surface-container-low p-4 text-sm">
             <p className="font-semibold">Worked example</p>
             <p className="mt-1">{block.worked_example.problem}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -172,7 +172,7 @@ function BlockBody({ block }: { block: Block }) {
     case "process":
       return (
         <div>
-          <h3 className="mb-3 font-semibold">{block.title}</h3>
+          <h3 className="mb-3 text-lg font-medium text-on-surface">{block.title}</h3>
           <ol className="space-y-3">
             {block.steps.map((s, i) => (
               <li key={i} className="flex gap-3">
@@ -195,13 +195,13 @@ function BlockBody({ block }: { block: Block }) {
     case "chart":
       return (
         <>
-          <h3 className="font-semibold">{block.title}</h3>
+          <h3 className="text-lg font-medium text-on-surface">{block.title}</h3>
           <ChartBlock block={block} />
         </>
       );
     case "insight":
       return (
-        <div className="border-l-4 border-amber-400 pl-4">
+        <div className="rounded-2xl border-l-4 border-amber-400 bg-amber-50/60 py-3 pr-4 pl-4 dark:bg-amber-950/20">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
             {INSIGHT_LABEL[block.kind]}
           </p>
@@ -212,12 +212,12 @@ function BlockBody({ block }: { block: Block }) {
     case "misconception":
       return (
         <div className="grid gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-lg bg-red-50 p-3 dark:bg-red-950/40">
+          <div className="rounded-2xl bg-red-50 p-4 dark:bg-red-950/40">
             <p className="font-semibold text-red-800 dark:text-red-200">✗ Common belief</p>
             <p>{block.wrong_belief}</p>
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">{block.why_wrong}</p>
           </div>
-          <div className="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-950/40">
+          <div className="rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-950/40">
             <p className="font-semibold text-emerald-800 dark:text-emerald-200">✓ Correct version</p>
             <p>{block.correct_version}</p>
           </div>
@@ -260,7 +260,7 @@ function BlockBody({ block }: { block: Block }) {
     case "code":
       return (
         <>
-          <h3 className="font-semibold">{block.title}</h3>
+          <h3 className="text-lg font-medium text-on-surface">{block.title}</h3>
           <CodeBlock block={block} />
         </>
       );

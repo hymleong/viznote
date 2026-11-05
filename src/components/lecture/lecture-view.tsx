@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { startGeneration } from "@/app/actions";
 import { BlockView } from "@/components/blocks/block-view";
@@ -134,24 +135,27 @@ export function LectureView({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={generate} disabled={pending || !!running || files.length === 0}>
+          <Sparkles aria-hidden />
           {generation ? "Regenerate (new version)" : "Generate study page"}
         </Button>
         {generation && (
-          <span className="text-sm text-zinc-600 dark:text-zinc-300" role="status" aria-live="polite">
+          <span className="inline-flex items-center gap-2 rounded-full bg-surface-container px-4 py-2 text-sm text-on-surface-variant" role="status" aria-live="polite">
+            {running && <span className="size-2 animate-pulse rounded-full bg-primary" aria-hidden />}
             v{generation.version} · {STATUS_LABEL[generation.status] ?? generation.status}
             {generation.status === "sections" && total ? ` (${doneSections}/${total})` : ""}
             {generation.error ? ` — ${generation.error}` : ""}
           </span>
         )}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && <span className="text-sm text-error">{error}</span>}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)_340px]">
+      <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)_360px]">
         <nav aria-label="Outline" className="hidden lg:block">
-          <ol className="sticky top-4 space-y-1 text-sm">
+          <p className="sticky top-20 mb-2 px-4 text-xs font-medium tracking-wide text-on-surface-variant uppercase">On this page</p>
+          <ol className="sticky top-28 space-y-0.5 text-sm">
             {sections.map((s) => (
               <li key={s.key}>
-                <a href={`#sec-${s.key}`} className="block rounded px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                <a href={`#sec-${s.key}`} className="block truncate rounded-full px-4 py-2 text-on-surface-variant transition-colors hover:bg-on-surface/8 hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                   {s.title}
                 </a>
               </li>
@@ -160,7 +164,7 @@ export function LectureView({
         </nav>
 
         <Tabs.Root defaultValue="overview" className="min-w-0">
-          <Tabs.List aria-label="Study views" className="mb-4 flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-800">
+          <Tabs.List aria-label="Study views" className="mb-6 flex gap-1 overflow-x-auto border-b border-outline-variant/60">
             {[
               ["overview", "Overview"],
               ["visual", "Visual Map"],
@@ -172,7 +176,7 @@ export function LectureView({
               <Tabs.Trigger
                 key={v}
                 value={v}
-                className="rounded-t-md px-3 py-2 text-sm data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="relative h-12 shrink-0 rounded-t-xl px-4 text-sm font-medium text-on-surface-variant transition-colors after:absolute after:inset-x-3 after:bottom-0 after:h-[3px] after:rounded-t-full after:bg-transparent hover:bg-on-surface/5 hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary data-[state=active]:text-primary data-[state=active]:after:bg-primary"
               >
                 {label}
               </Tabs.Trigger>
@@ -181,7 +185,7 @@ export function LectureView({
 
           <Tabs.Content value="overview" className="space-y-4">
             {sorted.filter((b) => OVERVIEW.has(b.type)).map(render)}
-            {running && <Card className="h-24 animate-pulse" />}
+            {running && <Card className="h-28 animate-pulse bg-surface-container ring-0" />}
             {!generation && <p className="text-sm text-zinc-500">Upload material, then generate the study page.</p>}
           </Tabs.Content>
           <Tabs.Content value="visual" className="space-y-4">
@@ -189,8 +193,8 @@ export function LectureView({
           </Tabs.Content>
           <Tabs.Content value="deep" className="space-y-8">
             {sections.map((s) => (
-              <section key={s.key} id={`sec-${s.key}`} aria-labelledby={`h-${s.key}`} className="scroll-mt-4 space-y-3">
-                <h2 id={`h-${s.key}`} className="text-lg font-semibold">
+              <section key={s.key} id={`sec-${s.key}`} aria-labelledby={`h-${s.key}`} className="scroll-mt-20 space-y-4">
+                <h2 id={`h-${s.key}`} className="text-[22px] font-normal tracking-tight text-on-surface">
                   {s.title}
                 </h2>
                 {s.blocks.map(render)}
@@ -246,19 +250,19 @@ function SourceViewer({
   };
 
   return (
-    <aside aria-label="Source viewer" className="lg:sticky lg:top-4 lg:self-start">
-      <Card className="space-y-3 p-3">
+    <aside aria-label="Source viewer" className="lg:sticky lg:top-20 lg:self-start">
+      <Card className="space-y-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate text-sm font-medium">
             {file ? `${fileLabel(file.id)} ${file.filename}` : "Source"}
             {page && <Badge className="ml-2">p.{page.page}</Badge>}
           </p>
           <div className="flex gap-1">
-            <Button size="sm" variant="outline" onClick={() => go(-1)} disabled={idx <= 0} aria-label="Previous page">
-              ‹
+            <Button size="icon" variant="ghost" className="size-9" onClick={() => go(-1)} disabled={idx <= 0} aria-label="Previous page">
+              <ChevronLeft aria-hidden />
             </Button>
-            <Button size="sm" variant="outline" onClick={() => go(1)} disabled={idx < 0 || idx >= pages.length - 1} aria-label="Next page">
-              ›
+            <Button size="icon" variant="ghost" className="size-9" onClick={() => go(1)} disabled={idx < 0 || idx >= pages.length - 1} aria-label="Next page">
+              <ChevronRight aria-hidden />
             </Button>
           </div>
         </div>
@@ -267,7 +271,7 @@ function SourceViewer({
           <img
             src={page.thumbnailUrl}
             alt={`Page ${page.page} of ${file?.filename ?? "source"}: ${page.text.slice(0, 120)}`}
-            className="w-full rounded border border-zinc-200 dark:border-zinc-700"
+            className="w-full rounded-2xl ring-1 ring-outline-variant/60"
           />
         ) : null}
         {page && (
