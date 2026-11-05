@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  experimental: {
+    // page text for long slide decks is sent to a server action in one batch
+    serverActions: { bodySizeLimit: "10mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {
