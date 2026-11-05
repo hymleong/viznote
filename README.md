@@ -69,5 +69,6 @@ Blocks are inserted as they are produced, and the lecture page subscribes over R
 | 1 | Pipeline steps 1-5, versioned generations, realtime progress | Done |
 | 1 | Renderers for all 12 block types, citations to source viewer | Done |
 | 2 | Review: approve / edit (JSON editor, validated) / regenerate with instruction / delete, all versioned | Done |
-| 2 | Flashcards + FSRS, quiz, Ask (RAG) | Not started (tables and `match_chunks` exist; tabs are placeholders) |
+| 2 | Flashcards from concepts, formulas and misconceptions, FSRS (`ts-fsrs`), one daily queue at `/review` | Done |
+| 2 | Quiz, Ask (RAG chat) | Not started (tables and `match_chunks` exist; tabs are placeholders) |
 | 3 | Cross-lecture linking, module graph, revision mode, exports, PPTX/audio, search | Not started (concepts are stored per lecture; `chunks.fts` and the vector index exist) |

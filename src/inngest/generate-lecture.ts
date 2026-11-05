@@ -18,6 +18,8 @@ import {
 } from "@/lib/llm/prompts";
 import * as S from "@/lib/blocks/schema";
 import { validateBlock, type ValidationContext } from "@/lib/blocks/validate";
+import { deriveFlashcards } from "@/lib/study/flashcards";
+import { createEmptyCard } from "ts-fsrs";
 
 const EventData = z.object({
   lectureId: z.string().uuid(),
@@ -274,6 +276,14 @@ export const generateLecture = inngest.createFunction(
         .from("lectures")
         .update({ status: "ready", current_generation_id: generationId })
         .eq("id", lectureId);
+
+      // Flashcards for this version (older versions keep their own cards and review history).
+      const drafts = deriveFlashcards((blocks ?? []) as { id: string; data: S.Block }[]);
+      if (drafts.length) {
+        await admin.from("flashcards").insert(
+          drafts.map((d) => ({ ...d, owner_id: ownerId, lecture_id: lectureId, fsrs: createEmptyCard(new Date()) })),
+        );
+      }
 
       const { data: lecture } = await admin.from("lectures").select("module_id").eq("id", lectureId).single();
       if (lecture) {

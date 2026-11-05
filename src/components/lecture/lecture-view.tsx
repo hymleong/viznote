@@ -194,10 +194,21 @@ export function LectureView({
               </section>
             ))}
           </Tabs.Content>
-          {["flashcards", "quiz", "ask"].map((v) => (
+          <Tabs.Content value="flashcards">
+            <Card className="space-y-2 text-sm">
+              <p>
+                Flashcards are built from this lecture&apos;s concepts, formulas and misconceptions when a
+                generation finishes. They are scheduled with FSRS in one queue across all your modules.
+              </p>
+              <Button asChild size="sm">
+                <a href="/review">Open daily review</a>
+              </Button>
+            </Card>
+          </Tabs.Content>
+          {["quiz", "ask"].map((v) => (
             <Tabs.Content key={v} value={v}>
               <Card>
-                <p className="text-sm text-zinc-500">Coming in Phase 2.</p>
+                <p className="text-sm text-zinc-500">Not built yet (Phase 2).</p>
               </Card>
             </Tabs.Content>
           ))}
