@@ -14,6 +14,9 @@ export default async function Home() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Your modules</h1>
+        <Link href="/admin/usage" className="ml-auto mr-2 text-sm text-indigo-600 hover:underline">
+          Token usage
+        </Link>
         <form action={signOut}>
           <Button variant="ghost" size="sm">
             Sign out
