@@ -70,5 +70,6 @@ Blocks are inserted as they are produced, and the lecture page subscribes over R
 | 1 | Renderers for all 12 block types, citations to source viewer | Done |
 | 2 | Review: approve / edit (JSON editor, validated) / regenerate with instruction / delete, all versioned | Done |
 | 2 | Flashcards from concepts, formulas and misconceptions, FSRS (`ts-fsrs`), one daily queue at `/review` | Done |
-| 2 | Quiz, Ask (RAG chat) | Not started (tables and `match_chunks` exist; tabs are placeholders) |
+| 2 | Quiz: MCQs built from the concept map and misconceptions, graded with an explanation and a link to the source page; attempts are recorded | Partial (no short-answer questions; weak concepts are recorded but not shown yet) |
+| 2 | Ask (RAG chat) | Not started (`match_chunks` and the chat tables exist; the tab is a placeholder) |
 | 3 | Cross-lecture linking, module graph, revision mode, exports, PPTX/audio, search | Not started (concepts are stored per lecture; `chunks.fts` and the vector index exist) |

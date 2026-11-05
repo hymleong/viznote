@@ -19,6 +19,7 @@ import {
 import * as S from "@/lib/blocks/schema";
 import { validateBlock, type ValidationContext } from "@/lib/blocks/validate";
 import { deriveFlashcards } from "@/lib/study/flashcards";
+import { deriveQuiz } from "@/lib/study/quiz";
 import { createEmptyCard } from "ts-fsrs";
 
 const EventData = z.object({
@@ -283,6 +284,12 @@ export const generateLecture = inngest.createFunction(
         await admin.from("flashcards").insert(
           drafts.map((d) => ({ ...d, owner_id: ownerId, lecture_id: lectureId, fsrs: createEmptyCard(new Date()) })),
         );
+      }
+
+      const quiz = deriveQuiz((blocks ?? []) as { data: S.Block }[]);
+      if (quiz.length) {
+        await admin.from("quiz_items").delete().eq("lecture_id", lectureId);
+        await admin.from("quiz_items").insert(quiz.map((q) => ({ ...q, owner_id: ownerId, lecture_id: lectureId })));
       }
 
       const { data: lecture } = await admin.from("lectures").select("module_id").eq("id", lectureId).single();

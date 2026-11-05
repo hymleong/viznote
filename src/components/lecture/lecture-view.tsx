@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { startGeneration } from "@/app/actions";
 import { BlockView } from "@/components/blocks/block-view";
 import { ReviewControls } from "@/components/blocks/review-controls";
+import { QuizPanel, type QuizItemView } from "@/components/study/quiz-panel";
 import { Button } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/primitives";
 import type { SourceRef } from "@/lib/blocks/schema";
@@ -28,12 +29,14 @@ export function LectureView({
   pages,
   initialGeneration,
   initialBlocks,
+  quizItems,
 }: {
   lectureId: string;
   files: SourceFileRow[];
   pages: PageView[];
   initialGeneration: GenerationRow | null;
   initialBlocks: BlockRow[];
+  quizItems: QuizItemView[];
 }) {
   const [generation, setGeneration] = useState(initialGeneration);
   const [blocks, setBlocks] = useState(initialBlocks);
@@ -205,13 +208,14 @@ export function LectureView({
               </Button>
             </Card>
           </Tabs.Content>
-          {["quiz", "ask"].map((v) => (
-            <Tabs.Content key={v} value={v}>
-              <Card>
-                <p className="text-sm text-zinc-500">Not built yet (Phase 2).</p>
-              </Card>
-            </Tabs.Content>
-          ))}
+          <Tabs.Content value="quiz">
+            <QuizPanel items={quizItems} onCite={setSelected} />
+          </Tabs.Content>
+          <Tabs.Content value="ask">
+            <Card>
+              <p className="text-sm text-zinc-500">Not built yet (Phase 2).</p>
+            </Card>
+          </Tabs.Content>
         </Tabs.Root>
 
         <SourceViewer pages={pages} files={files} selected={selected} onSelect={setSelected} fileLabel={fileLabel} />

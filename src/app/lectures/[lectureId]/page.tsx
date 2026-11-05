@@ -5,6 +5,7 @@ import { addPastedText } from "@/app/actions";
 import { STORAGE_BUCKET } from "@/lib/env";
 import { PdfUploader } from "@/components/upload/pdf-uploader";
 import { LectureView } from "@/components/lecture/lecture-view";
+import type { QuizItemView } from "@/components/study/quiz-panel";
 import { Button } from "@/components/ui/button";
 import { Card, Input, Textarea } from "@/components/ui/primitives";
 import type { BlockRow, GenerationRow, LectureRow, PageView, SourceFileRow } from "@/lib/types";
@@ -67,6 +68,12 @@ export default async function LecturePage({ params }: { params: Promise<{ lectur
         .order("position")
     : { data: [] };
 
+  const { data: quizData } = await supabase
+    .from("quiz_items")
+    .select("id, question, options, sources")
+    .eq("lecture_id", lectureId)
+    .order("created_at");
+
   return (
     <main className="mx-auto max-w-[1500px] space-y-6 px-4 py-6">
       <nav className="text-sm">
@@ -113,6 +120,7 @@ export default async function LecturePage({ params }: { params: Promise<{ lectur
         pages={pages}
         initialGeneration={generation}
         initialBlocks={(blockData ?? []) as BlockRow[]}
+        quizItems={(quizData ?? []) as QuizItemView[]}
       />
     </main>
   );
