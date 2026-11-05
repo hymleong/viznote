@@ -4,12 +4,13 @@ import { Background, Controls, MarkerType, ReactFlow, type Edge, type Node } fro
 import "@xyflow/react/dist/style.css";
 import type { BlockOf } from "@/lib/blocks/schema";
 
+/** Apple system palette, one hue per relation. */
 const EDGE_STYLE: Record<string, { stroke: string; dash?: string }> = {
-  "is-a": { stroke: "#6366f1" },
-  "part-of": { stroke: "#0ea5e9" },
-  causes: { stroke: "#f59e0b" },
-  "contrasts-with": { stroke: "#ef4444", dash: "6 4" },
-  "prerequisite-for": { stroke: "#10b981" },
+  "is-a": { stroke: "#5e5ce6" },
+  "part-of": { stroke: "#0a84ff" },
+  causes: { stroke: "#ff9f0a" },
+  "contrasts-with": { stroke: "#ff453a", dash: "6 4" },
+  "prerequisite-for": { stroke: "#30d158" },
 };
 
 /** Layered layout: prerequisite/cause edges push targets one level down. */
@@ -48,8 +49,11 @@ export function ConceptMap({ block }: { block: BlockOf<"concept_map"> }) {
         fontWeight: n.importance === 3 ? 700 : 500,
         fontSize: 12,
         borderWidth: n.importance,
-        borderColor: "#6366f1",
-        borderRadius: 10,
+        borderColor: "var(--vz-accent-fill)",
+        borderRadius: 14,
+        background: "var(--vz-surface)",
+        color: "var(--vz-label)",
+        boxShadow: "var(--vz-shadow-card)",
       },
     }));
     const edges: Edge[] = block.edges.map((e, i) => {
@@ -67,22 +71,40 @@ export function ConceptMap({ block }: { block: BlockOf<"concept_map"> }) {
     return { nodes, edges };
   }, [block]);
 
+  const used = new Set(block.edges.map((e) => e.relation));
+
   return (
     <figure>
-      <div className="h-[420px] w-full rounded-lg border border-zinc-200 dark:border-zinc-800" role="img" aria-label={block.caption}>
+      <div
+        className="h-[440px] w-full overflow-hidden rounded-2xl border border-separator"
+        role="img"
+        aria-label={block.caption}
+      >
         <ReactFlow nodes={nodes} edges={edges} fitView proOptions={{ hideAttribution: true }} nodesConnectable={false}>
           <Background />
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
-      <figcaption className="mt-2 text-sm text-zinc-500">{block.caption}</figcaption>
-      <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+      {used.size > 0 && (
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-footnote text-label-2">
+          {Object.entries(EDGE_STYLE)
+            .filter(([rel]) => used.has(rel as (typeof block.edges)[number]["relation"]))
+            .map(([rel, s]) => (
+              <li key={rel} className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-0.5 w-4 rounded-full" style={{ background: s.stroke }} />
+                {rel}
+              </li>
+            ))}
+        </ul>
+      )}
+      <figcaption className="mt-2 text-footnote text-label-2">{block.caption}</figcaption>
+      <dl className="mt-4 grid gap-2 sm:grid-cols-2">
         {block.nodes
           .filter((n) => n.importance >= 2)
           .map((n) => (
-            <div key={n.id} className="text-sm">
-              <dt className="font-semibold">{n.label}</dt>
-              <dd className="text-zinc-600 dark:text-zinc-400">{n.definition}</dd>
+            <div key={n.id} className="rounded-xl bg-surface-2 p-3 text-subhead">
+              <dt className="font-semibold text-label">{n.label}</dt>
+              <dd className="mt-0.5 text-label-2">{n.definition}</dd>
             </div>
           ))}
       </dl>

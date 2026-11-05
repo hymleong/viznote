@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { CircleCheck } from "lucide-react";
 import { rateCard } from "@/app/study-actions";
 import { Button } from "@/components/ui/button";
-import { Badge, Card } from "@/components/ui/primitives";
+import { Badge, Card, EmptyState } from "@/components/ui/primitives";
 import { Math } from "@/components/blocks/math";
 
 export type QueueCard = {
@@ -16,10 +17,10 @@ export type QueueCard = {
 };
 
 const RATINGS = [
-  { value: 1, label: "Again" },
-  { value: 2, label: "Hard" },
-  { value: 3, label: "Good" },
-  { value: 4, label: "Easy" },
+  { value: 1, label: "Again", tone: "text-bad" },
+  { value: 2, label: "Hard", tone: "text-warn" },
+  { value: 3, label: "Good", tone: "text-accent" },
+  { value: 4, label: "Easy", tone: "text-good" },
 ] as const;
 
 function Back({ text }: { text: string }) {
@@ -39,47 +40,72 @@ export function ReviewQueue({ cards }: { cards: QueueCard[] }) {
   const [pending, start] = useTransition();
   const card = cards[index];
 
-  if (!card) return <Card>Nothing due. Come back tomorrow.</Card>;
+  if (!card)
+    return (
+      <EmptyState icon={<CircleCheck aria-hidden />} title="All caught up" description="Nothing due. Come back tomorrow.">
+        <Button asChild variant="secondary">
+          <Link href="/">Back to library</Link>
+        </Button>
+      </EmptyState>
+    );
 
   return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-between text-xs text-zinc-500">
-        <Badge>{card.kind}</Badge>
-        <span>
-          {index + 1} / {cards.length} ·{" "}
-          <Link className="hover:underline" href={`/lectures/${card.lectureId}`}>
-            {card.lectureTitle}
-          </Link>
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div aria-hidden className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
+          <div
+            className="h-full rounded-full bg-accent-fill transition-[width] duration-300 ease-out motion-reduce:transition-none"
+            style={{ width: `${(index / cards.length) * 100}%` }}
+          />
+        </div>
+        <span className="text-footnote text-label-2 tabular-nums">
+          {index + 1} of {cards.length}
         </span>
       </div>
-      <p className="text-lg font-medium">{card.front}</p>
-      {revealed ? (
-        <div className="space-y-4">
-          <div className="rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/60">
-            <Back text={card.back} />
-          </div>
-          <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you recall it?">
-            {RATINGS.map((r) => (
-              <Button
-                key={r.value}
-                variant={r.value === 1 ? "destructive" : "outline"}
-                disabled={pending}
-                onClick={() =>
-                  start(async () => {
-                    await rateCard(card.id, r.value);
-                    setRevealed(false);
-                    setIndex((i) => i + 1);
-                  })
-                }
-              >
-                {r.label}
-              </Button>
-            ))}
-          </div>
+
+      <Card className="flex min-h-72 flex-col gap-6 p-6 sm:p-8">
+        <div className="flex items-center justify-between gap-3">
+          <Badge>{card.kind}</Badge>
+          <Link
+            className="truncate text-footnote text-accent hover:underline hover:underline-offset-4"
+            href={`/lectures/${card.lectureId}`}
+          >
+            {card.lectureTitle}
+          </Link>
         </div>
-      ) : (
-        <Button onClick={() => setRevealed(true)}>Show answer</Button>
-      )}
-    </Card>
+        <p className="text-2xl font-semibold tracking-tight text-label">{card.front}</p>
+        {revealed ? (
+          <div className="mt-auto space-y-5">
+            <div className="rounded-2xl bg-surface-2 p-5 text-headline text-label">
+              <Back text={card.back} />
+            </div>
+            <div className="grid grid-cols-4 gap-2" role="group" aria-label="How well did you recall it?">
+              {RATINGS.map((r) => (
+                <Button
+                  key={r.value}
+                  variant="secondary"
+                  size="lg"
+                  className={`px-2 ${r.tone}`}
+                  disabled={pending}
+                  onClick={() =>
+                    start(async () => {
+                      await rateCard(card.id, r.value);
+                      setRevealed(false);
+                      setIndex((i) => i + 1);
+                    })
+                  }
+                >
+                  {r.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <Button size="lg" className="mt-auto w-full" onClick={() => setRevealed(true)}>
+            Show answer
+          </Button>
+        )}
+      </Card>
+    </div>
   );
 }

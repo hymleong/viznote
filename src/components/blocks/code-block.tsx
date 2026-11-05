@@ -32,20 +32,20 @@ export function CodeBlock({ block }: { block: BlockOf<"code"> }) {
   const rows: Token[][] = lines ?? block.code.split("\n").map((l) => [{ content: l }]);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-      <table className="w-full border-collapse font-mono text-xs">
+    <div className="scroll-thin overflow-x-auto rounded-2xl border border-separator bg-surface-2 py-3">
+      <table className="w-full border-collapse font-mono text-xs leading-relaxed">
         <tbody>
           {rows.map((tokens, i) => (
-            <tr key={i} className={notes.has(i + 1) ? "bg-indigo-50 dark:bg-indigo-950/40" : undefined}>
-              <td className="select-none px-2 text-right text-zinc-400">{i + 1}</td>
-              <td className="whitespace-pre px-2">
+            <tr key={i} className={notes.has(i + 1) ? "bg-accent-fill/8" : undefined}>
+              <td className="select-none py-0.5 pl-4 pr-3 text-right text-label-3 tabular-nums">{i + 1}</td>
+              <td className="whitespace-pre pr-4">
                 {tokens.map((t, j) => (
                   <span key={j} style={{ color: t.color }}>
                     {t.content}
                   </span>
                 ))}
               </td>
-              <td className="px-3 py-0.5 font-sans text-zinc-600 dark:text-zinc-300">{notes.get(i + 1)}</td>
+              <td className="px-4 py-0.5 font-sans text-footnote text-label-2">{notes.get(i + 1)}</td>
             </tr>
           ))}
         </tbody>

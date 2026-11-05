@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
+import { ChevronLeft, ChevronRight, CircleCheck, CircleX, Layers, Loader, Network, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { startGeneration } from "@/app/actions";
 import { BlockView } from "@/components/blocks/block-view";
 import { ReviewControls } from "@/components/blocks/review-controls";
 import { QuizPanel, type QuizItemView } from "@/components/study/quiz-panel";
 import { Button } from "@/components/ui/button";
-import { Badge, Card } from "@/components/ui/primitives";
+import { Badge, Card, EmptyState } from "@/components/ui/primitives";
 import type { SourceRef } from "@/lib/blocks/schema";
 import type { BlockRow, GenerationRow, PageView, SourceFileRow } from "@/lib/types";
 
@@ -22,6 +23,14 @@ const STATUS_LABEL: Record<string, string> = {
   complete: "Complete",
   failed: "Failed",
 };
+const TABS = [
+  ["overview", "Overview"],
+  ["visual", "Visual Map"],
+  ["deep", "Deep Dive"],
+  ["flashcards", "Flashcards"],
+  ["quiz", "Quiz"],
+  ["ask", "Ask"],
+] as const;
 
 export function LectureView({
   lectureId,
@@ -106,6 +115,7 @@ export function LectureView({
   const running = generation && !["complete", "failed"].includes(generation.status);
   const total = generation?.progress?.sections_total;
   const doneSections = sections.filter((s) => s.key !== "overview").length;
+  const visualBlocks = sorted.filter((b) => VISUAL.has(b.type));
 
   function generate() {
     setError(null);
@@ -131,66 +141,99 @@ export function LectureView({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={generate} disabled={pending || !!running || files.length === 0}>
+          <Sparkles aria-hidden />
           {generation ? "Regenerate (new version)" : "Generate study page"}
         </Button>
         {generation && (
-          <span className="text-sm text-zinc-600 dark:text-zinc-300" role="status" aria-live="polite">
-            v{generation.version} · {STATUS_LABEL[generation.status] ?? generation.status}
-            {generation.status === "sections" && total ? ` (${doneSections}/${total})` : ""}
-            {generation.error ? ` — ${generation.error}` : ""}
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full bg-fill px-3 py-1 text-footnote text-label-2"
+            role="status"
+            aria-live="polite"
+          >
+            {running ? (
+              <Loader aria-hidden className="size-3.5 motion-safe:animate-spin" />
+            ) : generation.status === "complete" ? (
+              <CircleCheck aria-hidden className="size-3.5 text-good" />
+            ) : generation.status === "failed" ? (
+              <CircleX aria-hidden className="size-3.5 text-bad" />
+            ) : null}
+            <span>
+              v{generation.version} · {STATUS_LABEL[generation.status] ?? generation.status}
+              {generation.status === "sections" && total ? ` (${doneSections}/${total})` : ""}
+              {generation.error ? ` — ${generation.error}` : ""}
+            </span>
           </span>
         )}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && (
+          <span role="alert" className="text-footnote text-bad">
+            {error}
+          </span>
+        )}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)_340px]">
+      <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)_360px]">
         <nav aria-label="Outline" className="hidden lg:block">
-          <ol className="sticky top-4 space-y-1 text-sm">
-            {sections.map((s) => (
-              <li key={s.key}>
-                <a href={`#sec-${s.key}`} className="block rounded px-2 py-1 hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ol>
+          <div className="sticky top-20 space-y-2">
+            {sections.length > 0 && <p className="px-3 text-footnote font-semibold text-label-2">On this page</p>}
+            <ol className="space-y-0.5">
+              {sections.map((s) => (
+                <li key={s.key}>
+                  <a
+                    href={`#sec-${s.key}`}
+                    className="block rounded-lg px-3 py-1.5 text-subhead text-label-2 transition-colors duration-200 hover:bg-fill hover:text-label"
+                  >
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
         </nav>
 
         <Tabs.Root defaultValue="overview" className="min-w-0">
-          <Tabs.List aria-label="Study views" className="mb-4 flex flex-wrap gap-1 border-b border-zinc-200 dark:border-zinc-800">
-            {[
-              ["overview", "Overview"],
-              ["visual", "Visual Map"],
-              ["deep", "Deep Dive"],
-              ["flashcards", "Flashcards"],
-              ["quiz", "Quiz"],
-              ["ask", "Ask"],
-            ].map(([v, label]) => (
+          <Tabs.List
+            aria-label="Study views"
+            className="scroll-thin mb-6 inline-flex max-w-full overflow-x-auto rounded-full bg-fill p-1"
+          >
+            {TABS.map(([v, label]) => (
               <Tabs.Trigger
                 key={v}
                 value={v}
-                className="rounded-t-md px-3 py-2 text-sm data-[state=active]:border-b-2 data-[state=active]:border-indigo-600 data-[state=active]:font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="h-8 shrink-0 rounded-full px-4 text-footnote font-medium text-label-2 transition-colors duration-200 hover:text-label data-[state=active]:bg-thumb data-[state=active]:text-label data-[state=active]:shadow-sm"
               >
                 {label}
               </Tabs.Trigger>
             ))}
           </Tabs.List>
 
-          <Tabs.Content value="overview" className="space-y-4">
+          <Tabs.Content value="overview" className="space-y-5">
             {sorted.filter((b) => OVERVIEW.has(b.type)).map(render)}
-            {running && <Card className="h-24 animate-pulse" />}
-            {!generation && <p className="text-sm text-zinc-500">Upload material, then generate the study page.</p>}
+            {running && <Card aria-hidden className="skeleton h-28" />}
+            {!generation && (
+              <EmptyState
+                icon={<Sparkles aria-hidden />}
+                title="No study page yet"
+                description="Upload material, then generate the study page."
+              />
+            )}
           </Tabs.Content>
-          <Tabs.Content value="visual" className="space-y-4">
-            {sorted.filter((b) => VISUAL.has(b.type)).map(render)}
+          <Tabs.Content value="visual" className="space-y-5">
+            {visualBlocks.map(render)}
+            {visualBlocks.length === 0 && !running && (
+              <EmptyState
+                icon={<Network aria-hidden />}
+                title="No visuals yet"
+                description="Concept maps, diagrams and charts appear here once the study page is generated."
+              />
+            )}
           </Tabs.Content>
-          <Tabs.Content value="deep" className="space-y-8">
+          <Tabs.Content value="deep" className="space-y-10">
             {sections.map((s) => (
-              <section key={s.key} id={`sec-${s.key}`} aria-labelledby={`h-${s.key}`} className="scroll-mt-4 space-y-3">
-                <h2 id={`h-${s.key}`} className="text-lg font-semibold">
+              <section key={s.key} id={`sec-${s.key}`} aria-labelledby={`h-${s.key}`} className="scroll-mt-20 space-y-4">
+                <h2 id={`h-${s.key}`} className="text-xl font-semibold tracking-tight text-label">
                   {s.title}
                 </h2>
                 {s.blocks.map(render)}
@@ -198,8 +241,14 @@ export function LectureView({
             ))}
           </Tabs.Content>
           <Tabs.Content value="flashcards">
-            <Card className="space-y-2 text-sm">
-              <p>
+            <Card className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div
+                aria-hidden
+                className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent-fill/10 text-accent"
+              >
+                <Layers className="size-6" />
+              </div>
+              <p className="flex-1 text-subhead text-label-2">
                 Flashcards are built from this lecture&apos;s concepts, formulas and misconceptions when a
                 generation finishes. They are scheduled with FSRS in one queue across all your modules.
               </p>
@@ -212,9 +261,11 @@ export function LectureView({
             <QuizPanel items={quizItems} onCite={setSelected} />
           </Tabs.Content>
           <Tabs.Content value="ask">
-            <Card>
-              <p className="text-sm text-zinc-500">Not built yet (Phase 2).</p>
-            </Card>
+            <EmptyState
+              icon={<Sparkles aria-hidden />}
+              title="Ask is coming soon"
+              description="Chatting with your lecture material is not built yet (Phase 2)."
+            />
           </Tabs.Content>
         </Tabs.Root>
 
@@ -246,19 +297,25 @@ function SourceViewer({
   };
 
   return (
-    <aside aria-label="Source viewer" className="lg:sticky lg:top-4 lg:self-start">
-      <Card className="space-y-3 p-3">
+    <aside aria-label="Source viewer" className="lg:sticky lg:top-20 lg:self-start">
+      <Card className="space-y-3 p-4 sm:p-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm font-medium">
-            {file ? `${fileLabel(file.id)} ${file.filename}` : "Source"}
-            {page && <Badge className="ml-2">p.{page.page}</Badge>}
+          <p className="flex min-w-0 items-center gap-2 text-subhead font-medium text-label">
+            <span className="truncate">{file ? `${fileLabel(file.id)} ${file.filename}` : "Source"}</span>
+            {page && <Badge className="shrink-0 normal-case tabular-nums">p.{page.page}</Badge>}
           </p>
-          <div className="flex gap-1">
-            <Button size="sm" variant="outline" onClick={() => go(-1)} disabled={idx <= 0} aria-label="Previous page">
-              ‹
+          <div className="flex shrink-0 gap-1">
+            <Button size="icon-sm" variant="secondary" onClick={() => go(-1)} disabled={idx <= 0} aria-label="Previous page">
+              <ChevronLeft aria-hidden />
             </Button>
-            <Button size="sm" variant="outline" onClick={() => go(1)} disabled={idx < 0 || idx >= pages.length - 1} aria-label="Next page">
-              ›
+            <Button
+              size="icon-sm"
+              variant="secondary"
+              onClick={() => go(1)}
+              disabled={idx < 0 || idx >= pages.length - 1}
+              aria-label="Next page"
+            >
+              <ChevronRight aria-hidden />
             </Button>
           </div>
         </div>
@@ -267,15 +324,15 @@ function SourceViewer({
           <img
             src={page.thumbnailUrl}
             alt={`Page ${page.page} of ${file?.filename ?? "source"}: ${page.text.slice(0, 120)}`}
-            className="w-full rounded border border-zinc-200 dark:border-zinc-700"
+            className="w-full rounded-xl border border-separator"
           />
         ) : null}
         {page && (
-          <p className="max-h-64 overflow-y-auto whitespace-pre-wrap text-xs text-zinc-600 dark:text-zinc-400">
+          <p className="scroll-thin max-h-64 overflow-y-auto whitespace-pre-wrap rounded-xl bg-surface-2 p-3 text-footnote text-label-2">
             {page.text || "(no extractable text on this page)"}
           </p>
         )}
-        {!page && <p className="text-sm text-zinc-500">Click a citation to open its slide.</p>}
+        {!page && <p className="text-subhead text-label-2">Click a citation to open its slide.</p>}
       </Card>
     </aside>
   );

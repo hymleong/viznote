@@ -40,16 +40,16 @@ export function MermaidDiagram({ source, caption }: { source: string; caption: s
 
   if (failed)
     return (
-      <pre className="overflow-x-auto rounded-md bg-zinc-100 p-3 text-xs dark:bg-zinc-800" aria-label={caption}>
+      <pre className="scroll-thin overflow-x-auto rounded-2xl bg-surface-2 p-4 text-xs text-label" aria-label={caption}>
         {source}
       </pre>
     );
-  if (!svg) return <div className="h-40 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />;
+  if (!svg) return <div aria-hidden className="skeleton h-40 rounded-2xl" />;
   return (
     <div
       role="img"
       aria-label={caption}
-      className="flex justify-center overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full"
+      className="scroll-thin flex justify-center overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full"
       // Sanitised Mermaid output (strict mode + DOMPurify), not model-authored HTML.
       dangerouslySetInnerHTML={{ __html: svg }}
     />
