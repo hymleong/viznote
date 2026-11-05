@@ -4,6 +4,7 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { createClient } from "@/lib/supabase/client";
 import { startGeneration } from "@/app/actions";
 import { BlockView } from "@/components/blocks/block-view";
+import { ReviewControls } from "@/components/blocks/review-controls";
 import { Button } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/primitives";
 import type { SourceRef } from "@/lib/blocks/schema";
@@ -52,10 +53,23 @@ export function LectureView({
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "blocks", filter: `generation_id=eq.${genId}` },
-        (payload) =>
+        (payload) => {
+          const row = payload.new as BlockRow & { is_current: boolean; deleted_at: string | null };
+          if (!row.is_current || row.deleted_at) return;
+          setBlocks((prev) => (prev.some((b) => b.id === row.id) ? prev : [...prev, row]));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "blocks", filter: `generation_id=eq.${genId}` },
+        (payload) => {
+          const row = payload.new as BlockRow & { is_current: boolean; deleted_at: string | null };
           setBlocks((prev) =>
-            prev.some((b) => b.id === (payload.new as BlockRow).id) ? prev : [...prev, payload.new as BlockRow],
-          ),
+            !row.is_current || row.deleted_at
+              ? prev.filter((b) => b.id !== row.id)
+              : prev.map((b) => (b.id === row.id ? row : b)),
+          );
+        },
       )
       .on(
         "postgres_changes",
@@ -104,7 +118,13 @@ export function LectureView({
   }
 
   const render = (b: BlockRow) => (
-    <BlockView key={b.id} block={b.data} onCite={setSelected} fileLabel={fileLabel} />
+    <BlockView
+      key={b.id}
+      block={b.data}
+      onCite={setSelected}
+      fileLabel={fileLabel}
+      footer={<ReviewControls row={b} />}
+    />
   );
 
   return (

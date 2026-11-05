@@ -199,6 +199,21 @@ export type Block = z.infer<typeof Block>;
 export type BlockType = Block["type"];
 export type BlockOf<T extends BlockType> = Extract<Block, { type: T }>;
 
+export const SCHEMA_BY_TYPE: Record<BlockType, z.ZodType> = {
+  tldr: TldrBlock,
+  concept_map: ConceptMapBlock,
+  diagram: DiagramBlock,
+  comparison: ComparisonBlock,
+  formula: FormulaBlock,
+  process: ProcessBlock,
+  chart: ChartBlock,
+  insight: InsightBlock,
+  misconception: MisconceptionBlock,
+  analogy: AnalogyBlock,
+  exam_focus: ExamFocusBlock,
+  code: CodeBlock,
+};
+
 export const BLOCK_TYPES = [
   "tldr",
   "concept_map",

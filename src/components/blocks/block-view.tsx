@@ -35,10 +35,12 @@ export function BlockView({
   block,
   onCite,
   fileLabel,
+  footer,
 }: {
   block: Block;
   onCite: (ref: SourceRef) => void;
   fileLabel: (fileId: string) => string;
+  footer?: React.ReactNode;
 }) {
   return (
     <Card className="space-y-3">
@@ -64,6 +66,7 @@ export function BlockView({
         </div>
       </header>
       <BlockBody block={block} />
+      {footer}
     </Card>
   );
 }

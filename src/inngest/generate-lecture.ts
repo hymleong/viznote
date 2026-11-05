@@ -25,21 +25,6 @@ const EventData = z.object({
   ownerId: z.string().uuid(),
 });
 
-const SCHEMA_BY_TYPE: Record<S.BlockType, z.ZodType> = {
-  tldr: S.TldrBlock,
-  concept_map: S.ConceptMapBlock,
-  diagram: S.DiagramBlock,
-  comparison: S.ComparisonBlock,
-  formula: S.FormulaBlock,
-  process: S.ProcessBlock,
-  chart: S.ChartBlock,
-  insight: S.InsightBlock,
-  misconception: S.MisconceptionBlock,
-  analogy: S.AnalogyBlock,
-  exam_focus: S.ExamFocusBlock,
-  code: S.CodeBlock,
-};
-
 type Dropped = { section: string; type: string; errors: string[] };
 
 /**
@@ -67,7 +52,7 @@ async function validateAll(
         model: MODELS.chunk,
         source: withCacheBreakpoint(src.content),
         instructions: repairInstructions(JSON.stringify(candidate), first.errors),
-        schema: z.object({ block: SCHEMA_BY_TYPE[candidate.type] }),
+        schema: z.object({ block: S.SCHEMA_BY_TYPE[candidate.type] }),
         maxTokens: MAX_TOKENS.repair,
         effort: "low",
       });
