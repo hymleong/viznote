@@ -52,6 +52,16 @@ The source material sits behind a byte-identical system prompt with a cache brea
 Sonnet calls opt in to server-side refusal fallback (`fallbacks: "default"`).
 Blocks are inserted as they are produced, and the lecture page subscribes over Realtime, so the page fills in block by block.
 
+## Design
+
+An Apple-inspired system (`src/app/globals.css`): SF system type with large titles, grouped
+backgrounds, hairline separators, a frosted sticky nav and one blue accent. Raw colours are
+`--vz-*` custom properties on `:root` that switch with `prefers-color-scheme`; `@theme` maps them
+onto Tailwind utilities (`bg-surface`, `bg-fill`, `text-label-2`, `border-separator`, `text-accent`,
+`text-good`/`text-warn`/`text-bad`), so components never need `dark:` variants. Shared pieces live in
+`src/components/ui` (pill `Button`, `Card`, `Badge`, `PageHeader`, `BackLink`, `EmptyState`) and
+`src/components/shell/app-nav.tsx`. Motion respects `prefers-reduced-motion`.
+
 ## Safety
 
 - LLM output is rendered by typed components only.

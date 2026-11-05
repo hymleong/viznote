@@ -1,21 +1,224 @@
 @import "tailwindcss";
 
+/*
+ * Viznotes design tokens: an Apple-inspired system with SF system type, grouped
+ * backgrounds, hairline separators, translucent "glass" chrome and one blue
+ * accent. Raw values live in --vz-* custom properties on :root and flip with
+ * the system colour scheme; @theme maps them onto Tailwind utilities
+ * (bg-surface, text-label-2, border-separator, ...).
+ */
 :root {
   color-scheme: light dark;
-}
 
-body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --vz-canvas: #f5f5f7;
+  --vz-surface: #ffffff;
+  --vz-surface-2: #f5f5f7;
+  --vz-thumb: #ffffff;
+  --vz-fill: rgb(120 120 128 / 0.12);
+  --vz-fill-strong: rgb(120 120 128 / 0.2);
+  --vz-label: #1d1d1f;
+  --vz-label-2: #6e6e73;
+  --vz-label-3: #86868b;
+  --vz-separator: rgb(60 60 67 / 0.13);
+  --vz-separator-strong: rgb(60 60 67 / 0.29);
+  --vz-accent: #0066cc;
+  --vz-accent-fill: #0071e3;
+  --vz-accent-fill-hover: #0077ed;
+  --vz-on-accent: #ffffff;
+  --vz-good: #1d7d35;
+  --vz-warn: #a35200;
+  --vz-bad: #d70015;
+  --vz-purple: #7d3cd8;
+  --vz-glass: rgb(245 245 247 / 0.78);
+  --vz-shadow-card: 0 1px 1px rgb(0 0 0 / 0.02), 0 4px 18px rgb(0 0 0 / 0.04);
+  --vz-shadow-raised: 0 2px 6px rgb(0 0 0 / 0.04), 0 18px 44px rgb(0 0 0 / 0.1);
+  --vz-focus: #0071e3;
+
+  accent-color: var(--vz-accent-fill);
 }
 
 @media (prefers-color-scheme: dark) {
+  :root {
+    --vz-canvas: #000000;
+    --vz-surface: #1c1c1e;
+    --vz-surface-2: #2c2c2e;
+    --vz-thumb: #636366;
+    --vz-fill: rgb(118 118 128 / 0.24);
+    --vz-fill-strong: rgb(118 118 128 / 0.36);
+    --vz-label: #f5f5f7;
+    --vz-label-2: #a1a1a6;
+    --vz-label-3: #8e8e93;
+    --vz-separator: rgb(84 84 88 / 0.5);
+    --vz-separator-strong: rgb(84 84 88 / 0.85);
+    --vz-accent: #2997ff;
+    --vz-good: #30d158;
+    --vz-warn: #ff9f0a;
+    --vz-bad: #ff453a;
+    --vz-purple: #bf5af2;
+    --vz-glass: rgb(22 22 23 / 0.78);
+    --vz-shadow-card: 0 0 0 1px rgb(255 255 255 / 0.03);
+    --vz-shadow-raised: 0 0 0 1px rgb(255 255 255 / 0.06), 0 18px 44px rgb(0 0 0 / 0.55);
+    --vz-focus: #2997ff;
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--vz-canvas);
+  --color-surface: var(--vz-surface);
+  --color-surface-2: var(--vz-surface-2);
+  --color-thumb: var(--vz-thumb);
+  --color-fill: var(--vz-fill);
+  --color-fill-strong: var(--vz-fill-strong);
+  --color-label: var(--vz-label);
+  --color-label-2: var(--vz-label-2);
+  --color-label-3: var(--vz-label-3);
+  --color-separator: var(--vz-separator);
+  --color-separator-strong: var(--vz-separator-strong);
+  --color-accent: var(--vz-accent);
+  --color-accent-fill: var(--vz-accent-fill);
+  --color-accent-fill-hover: var(--vz-accent-fill-hover);
+  --color-on-accent: var(--vz-on-accent);
+  --color-good: var(--vz-good);
+  --color-warn: var(--vz-warn);
+  --color-bad: var(--vz-bad);
+  --color-purple: var(--vz-purple);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Inter",
+    "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-footnote: 0.8125rem;
+  --text-footnote--line-height: 1.125rem;
+  --text-subhead: 0.9375rem;
+  --text-subhead--line-height: 1.375rem;
+  --text-headline: 1.0625rem;
+  --text-headline--line-height: 1.5rem;
+
+  --radius-card: 1.375rem;
+  --shadow-card: var(--vz-shadow-card);
+  --shadow-raised: var(--vz-shadow-raised);
+}
+
+/* Frosted translucent chrome (nav bars, toolbars). Solid canvas where backdrop-filter is missing. */
+@utility glass {
+  background-color: var(--vz-glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: var(--vz-canvas);
+  }
+}
+
+/* Apple "large title" for page headings. */
+@utility large-title {
+  font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+}
+
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  :where(h1, h2, h3) {
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--vz-accent-fill) 26%, transparent);
+  }
+
+  :where(button:not(:disabled), summary, [role="tab"]) {
+    cursor: pointer;
+  }
+
+  :where(a[href], button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--vz-focus);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: fixed;
+    inset-inline-start: 1rem;
+    inset-block-start: 0.5rem;
+    z-index: 60;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background-color: var(--vz-accent-fill);
+    color: var(--vz-on-accent);
+    font-weight: 600;
+  }
+
+  .skip-link:where(:not(:focus-within, :active)) {
+    position: absolute !important;
+    clip-path: inset(50%) !important;
+    overflow: hidden !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .app-icon {
+    background-image: linear-gradient(135deg, #5e5ce6, #0a84ff);
+    color: #ffffff;
+  }
+
+  /* Pulsing placeholder while content streams in. */
+  .skeleton {
+    background-color: var(--vz-fill);
+    animation: vz-pulse 1.6s ease-in-out infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  /* Gentle fade-up entrance for page content (motion-safe only). */
+  .rise {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: vz-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--vz-fill-strong) transparent;
+  }
+
+  /* React Flow follows the same tokens in both colour schemes. */
   .react-flow {
-    --xy-background-color: #18181b;
-    --xy-node-background-color: #27272a;
-    --xy-node-color: #f4f4f5;
-    --xy-edge-label-background-color: #27272a;
-    --xy-edge-label-color: #e4e4e7;
-    --xy-controls-button-background-color: #27272a;
-    --xy-controls-button-color: #f4f4f5;
+    --xy-background-color: var(--vz-surface-2);
+    --xy-node-background-color: var(--vz-surface);
+    --xy-node-color: var(--vz-label);
+    --xy-edge-label-background-color: var(--vz-surface);
+    --xy-edge-label-color: var(--vz-label-2);
+    --xy-controls-button-background-color: var(--vz-surface);
+    --xy-controls-button-background-color-hover: var(--vz-surface-2);
+    --xy-controls-button-color: var(--vz-label);
+    --xy-controls-button-border-color: var(--vz-separator);
+    --xy-controls-box-shadow: var(--vz-shadow-card);
+  }
+}
+
+@keyframes vz-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes vz-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
   }
 }

@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { registerPdf, savePages } from "@/app/actions";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /** Pages with little extractable text are treated as diagram-heavy: we also send their image to the model. */
 const LOW_TEXT_CHARS = 250;
@@ -23,6 +24,7 @@ export function PdfUploader({ lectureId }: { lectureId: string }) {
   const router = useRouter();
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   async function handle(file: File) {
     setBusy(true);
@@ -83,27 +85,53 @@ export function PdfUploader({ lectureId }: { lectureId: string }) {
   }
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium" htmlFor={`pdf-${lectureId}`}>
-        Upload slides or notes (PDF)
-      </label>
-      <input
-        id={`pdf-${lectureId}`}
-        type="file"
-        accept="application/pdf"
-        disabled={busy}
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) void handle(f);
+    <div className="space-y-3">
+      <label
+        htmlFor={`pdf-${lectureId}`}
+        data-dragging={dragging || undefined}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!busy) setDragging(true);
         }}
-        className="block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-white"
-      />
-      {status && (
-        <p role="status" className="text-sm text-zinc-600 dark:text-zinc-300">
-          {status}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          if (busy) return;
+          const f = Array.from(e.dataTransfer.files).find((file) => file.type === "application/pdf");
+          if (f) void handle(f);
+          else setStatus("Only PDF files can be uploaded here.");
+        }}
+        className={cn(
+          "flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-separator-strong bg-surface-2/50 p-6 text-center transition-colors duration-200 hover:border-accent-fill/60 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-fill data-[dragging]:border-accent-fill data-[dragging]:bg-accent-fill/5",
+          busy && "pointer-events-none opacity-60",
+        )}
+      >
+        <span className="flex size-11 items-center justify-center rounded-full bg-accent-fill/10 text-accent">
+          <Upload aria-hidden className="size-5" />
+        </span>
+        <span className="space-y-0.5">
+          <span className="block text-subhead font-semibold text-label">Drop a PDF here, or click to choose</span>
+          <span className="block text-footnote text-label-2">Slides or notes · PDF</span>
+        </span>
+        <input
+          id={`pdf-${lectureId}`}
+          type="file"
+          accept="application/pdf"
+          disabled={busy}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void handle(f);
+          }}
+          className="sr-only"
+        />
+      </label>
+      {(busy || status) && (
+        <p role="status" className="flex items-center gap-2 text-subhead text-label-2">
+          {busy && <Loader aria-hidden className="size-4 shrink-0 text-accent motion-safe:animate-spin" />}
+          <span>{status ?? "Processing…"}</span>
         </p>
       )}
-      {busy && <Button disabled size="sm">Processing…</Button>}
     </div>
   );
 }

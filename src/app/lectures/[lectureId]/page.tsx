@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronDown, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { addPastedText } from "@/app/actions";
 import { STORAGE_BUCKET } from "@/lib/env";
@@ -7,7 +7,7 @@ import { PdfUploader } from "@/components/upload/pdf-uploader";
 import { LectureView } from "@/components/lecture/lecture-view";
 import type { QuizItemView } from "@/components/study/quiz-panel";
 import { Button } from "@/components/ui/button";
-import { Card, Input, Textarea } from "@/components/ui/primitives";
+import { BackLink, Card, Input, Textarea } from "@/components/ui/primitives";
 import type { BlockRow, GenerationRow, LectureRow, PageView, SourceFileRow } from "@/lib/types";
 
 export default async function LecturePage({ params }: { params: Promise<{ lectureId: string }> }) {
@@ -75,44 +75,62 @@ export default async function LecturePage({ params }: { params: Promise<{ lectur
     .order("created_at");
 
   return (
-    <main className="mx-auto max-w-[1500px] space-y-6 px-4 py-6">
-      <nav className="text-sm">
-        <Link href={`/modules/${lecture.module_id}`} className="text-indigo-600 hover:underline">
-          ← Module
-        </Link>
-      </nav>
-      <h1 className="text-2xl font-bold">{lecture.title}</h1>
+    <main className="rise mx-auto w-full max-w-[1440px] space-y-8 px-4 pb-24 pt-8 sm:px-6 sm:pt-12">
+      <div className="space-y-4">
+        <BackLink href={`/modules/${lecture.module_id}`}>Module</BackLink>
+        <h1 className="large-title text-label">{lecture.title}</h1>
+      </div>
 
-      <details open={files.length === 0} className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-        <summary className="cursor-pointer font-medium">
-          Materials ({files.length} file{files.length === 1 ? "" : "s"})
-        </summary>
-        <div className="mt-4 grid gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <ul className="text-sm">
-              {files.map((f) => (
-                <li key={f.id}>
-                  {f.filename} <span className="text-zinc-500">({f.page_count} pages)</span>
-                </li>
-              ))}
-            </ul>
-            <PdfUploader lectureId={lecture.id} />
+      <Card className="p-0 sm:p-0">
+        <details open={files.length === 0} className="group">
+          <summary className="flex list-none items-center gap-3 rounded-card px-5 py-4 sm:px-6 [&::-webkit-details-marker]:hidden">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-fill/10 text-accent">
+              <FileText aria-hidden className="size-4" />
+            </span>
+            <span className="flex-1 text-headline font-semibold text-label">
+              Materials{" "}
+              <span className="font-normal text-label-2">
+                · {files.length} file{files.length === 1 ? "" : "s"}
+              </span>
+            </span>
+            <ChevronDown
+              aria-hidden
+              className="size-5 text-label-3 transition-transform duration-300 group-open:rotate-180 motion-reduce:transition-none"
+            />
+          </summary>
+          <div className="grid gap-6 border-t border-separator p-5 sm:p-6 md:grid-cols-2">
+            <div className="space-y-4">
+              {files.length > 0 && (
+                <ul className="divide-y divide-separator overflow-hidden rounded-2xl bg-surface-2" role="list">
+                  {files.map((f) => (
+                    <li key={f.id} className="flex items-center gap-3 px-4 py-3 text-subhead">
+                      <FileText aria-hidden className="size-4 shrink-0 text-label-2" />
+                      <span className="min-w-0 flex-1 truncate text-label">{f.filename}</span>
+                      <span className="shrink-0 text-footnote tabular-nums text-label-2">
+                        {f.page_count} page{f.page_count === 1 ? "" : "s"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <PdfUploader lectureId={lecture.id} />
+            </div>
+            <div className="rounded-2xl bg-surface-2 p-4 sm:p-5">
+              <form action={addPastedText} className="space-y-3">
+                <input type="hidden" name="lectureId" value={lecture.id} />
+                <label htmlFor="paste-title" className="block text-subhead font-semibold text-label">
+                  Or paste text / Markdown
+                </label>
+                <Input id="paste-title" name="title" placeholder="Lecture notes" required />
+                <Textarea name="text" aria-label="Lecture text" placeholder="# Heading…" required />
+                <Button type="submit" variant="secondary" size="sm">
+                  Add text
+                </Button>
+              </form>
+            </div>
           </div>
-          <Card className="p-4">
-            <form action={addPastedText} className="space-y-2">
-              <input type="hidden" name="lectureId" value={lecture.id} />
-              <label htmlFor="paste-title" className="text-sm font-medium">
-                Or paste text / Markdown
-              </label>
-              <Input id="paste-title" name="title" placeholder="Lecture notes" required />
-              <Textarea name="text" aria-label="Lecture text" placeholder="# Heading…" required />
-              <Button type="submit" variant="outline" size="sm">
-                Add text
-              </Button>
-            </form>
-          </Card>
-        </div>
-      </details>
+        </details>
+      </Card>
 
       <LectureView
         lectureId={lecture.id}
